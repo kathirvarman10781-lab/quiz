@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECE Quiz</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    }
+
+    .quiz-box {
+        width: 90%;
+        max-width: 650px;
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+        text-align: center;
+        color: #1e3a8a;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .question {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .option {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        margin: 10px 0;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: #f8fafc;
+        cursor: pointer;
+        text-align: left;
+        font-size: 16px;
+        transition: 0.3s;
+    }
+
+    .option:hover {
+        background: #dbeafe;
+        border-color: #2563eb;
+    }
+
+    .correct {
+        background: #bbf7d0 !important;
+        border-color: #16a34a !important;
+    }
+
+    .wrong {
+        background: #fecaca !important;
+        border-color: #dc2626 !important;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #1d4ed8;
+    }
+
+    #result {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #1e3a8a;
+        margin-top: 20px;
+    }
+
+    .progress {
+        text-align: right;
+        color: #555;
+        margin-bottom: 15px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="quiz-box">
+
+    <h1>⚡ ECE Quiz ⚡</h1>
+    <div class="subtitle">Electronics & Communication Engineering</div>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="question" id="question"></div>
+
+    <div id="options"></div>
+
+    <button id="nextBtn" onclick="nextQuestion()">Next Question ➜</button>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+
+const quiz = [
+
+    {
+        question: "Which component stores electrical energy?",
+        options: ["Resistor", "Capacitor", "Diode", "Transistor"],
+        answer: 1
+    },
+
+    {
+        question: "What is the SI unit of resistance?",
+        options: ["Volt", "Ampere", "Ohm", "Watt"],
+        answer: 2
+    },
+
+    {
+        question: "Which device converts AC into DC?",
+        options: ["Transformer", "Rectifier", "Oscillator", "Amplifier"],
+        answer: 1
+    },
+
+    {
+        question: "Which semiconductor device has three terminals?",
+        options: ["Resistor", "Capacitor", "Transistor", "LED"],
+        answer: 2
+    },
+
+    {
+        question: "What does LED stand for?",
+        options: [
+            "Light Emitting Diode",
+            "Low Energy Device",
+            "Light Electronic Display",
+            "Linear Emitting Device"
+        ],
+        answer: 0
+    },
+
+    {
+        question: "Which instrument is used to observe electrical waveforms?",
+        options: [
+            "Ammeter",
+            "Voltmeter",
+            "Oscilloscope",
+            "Ohmmeter"
+        ],
+        answer: 2
+    },
+
+    {
+        question: "Which logic gate gives output 1 only when both inputs are 1?",
+        options: ["OR", "AND", "NOT", "XOR"],
+        answer: 1
+    },
+
+    {
+        question: "What is the main purpose of modulation?",
+        options: [
+            "To store charge",
+            "To increase resistance",
+            "To place information on a carrier signal",
+            "To remove all noise"
+        ],
+        answer: 2
+    },
+
+    {
+        question: "Which quantity is measured in amperes?",
+        options: ["Voltage", "Current", "Resistance", "Power"],
+        answer: 1
+    },
+
+    {
+        question: "What does ECE stand for?",
+        options: [
+            "Electrical Computer Engineering",
+            "Electronic Circuit Equipment",
+            "Electronics and Communication Engineering",
+            "Electronic Communication Equipment"
+        ],
+        answer: 2
+    }
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+
+    answered = false;
+
+    const q = quiz[currentQuestion];
+
+    document.getElementById("progress").innerText =
+        `Question ${currentQuestion + 1} / ${quiz.length}`;
+
+    document.getElementById("question").innerText = q.question;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "option";
+        button.innerText =
+            String.fromCharCode(65 + index) + ". " + option;
+
+        button.onclick = function () {
+            checkAnswer(index, button);
+        };
+
+        optionsDiv.appendChild(button);
+    });
+
+    document.getElementById("nextBtn").style.display = "block";
+}
+
+function checkAnswer(selected, button) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const correct = quiz[currentQuestion].answer;
+
+    const allOptions = document.querySelectorAll(".option");
+
+    if (selected === correct) {
+        button.classList.add("correct");
+        score++;
+    } else {
+        button.classList.add("wrong");
+        allOptions[correct].classList.add("correct");
+    }
+}
+
+function nextQuestion() {
+
+    if (!answered) {
+        alert("Please select an answer!");
+        return;
+    }
+
+    currentQuestion++;
+
+    if (currentQuestion < quiz.length) {
+
+        loadQuestion();
+
+    } else {
+
+        document.getElementById("question").innerText =
+            "🎉 Quiz Completed!";
+
+        document.getElementById("options").innerHTML = "";
+
+        document.getElementById("progress").innerText = "";
+
+        document.getElementById("nextBtn").innerText =
+            "Restart Quiz 🔄";
+
+        document.getElementById("nextBtn").onclick =
+            restartQuiz;
+
+        document.getElementById("result").innerText =
+            `Your Score: ${score} / ${quiz.length}`;
+
+    }
+}
+
+function restartQuiz() {
+
+    currentQuestion = 0;
+    score = 0;
+
+    document.getElementById("result").innerText = "";
+
+    document.getElementById("nextBtn").innerText =
+        "Next Question ➜";
+
+    document.getElementById("nextBtn").onclick =
+        nextQuestion;
+
+    loadQuestion();
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
